@@ -133,4 +133,22 @@ docker run --rm -it --pid=host ctf-pidhost
   ls -la /proc/1/root/        # access FS of a process
   cat /proc/1/root/etc/shadow 2>/dev/null
   ```
+  Combined with `CAP_SYS_PTRACE` we can inject code into a visible process on host 
+</details>
+
+## chall06 - --ipc=host
+
+```
+docker build -t ctf-ipchost .
+docker run --rm -it --ipc=host ctf-ipchost
+```
+
+<details>
+  <summary>Solution</summary>
+
+  1. List the host's shared memory segments
+  ```
+  ipcs -m
+  ```
+  Example to show data leak of the host, but not full escape.
 </details>
